@@ -1,30 +1,30 @@
 package br.com.sampaiollo.pzsmp.entity;
+
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import java.math.BigDecimal;
+import java.util.List;
+
 @Entity
-@Table(name = "funcionario") 
+@Table(name = "funcionario")
 @Data
-public class Funcionario {
+@EqualsAndHashCode(callSuper = true)
+@PrimaryKeyJoinColumn(name = "id_funcionario") // Conecta com a tabela Pessoa
+public class Funcionario extends Pessoa {
 
-	private char cargo;
+    @Column(length = 100)
+    private String cargo;
 
-	private double salario;
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id_pessoa;
+    @Column(precision = 10, scale = 2) // Equivalente a NUMERIC(10,2)
+    private BigDecimal salario;
 
-	private Pessoa pessoa;
-
-	public Pagamento registrarPag(Pedido pedido, double valor, MetodoPagamento metodoPag) {
-		return null;
-	}
-
-	public void gerenciarStatusPed(Pedido pedido, StatusPedido novoStatus) {
-
-	}
-
-	public void gerenciarStatusEnt(Entrega entrega, StatusEntrega novoStatus) {
-
-	}
-
+    // Um Funcionário tem um Usuário. A ligação é feita pela coluna 'login' que é única.
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "login_usuario", referencedColumnName = "login") // FK de Funcionario para a coluna 'login' de Usuario [cite: 192]
+    private Usuario usuario;
+    
+    // Um funcionário pode ser responsável por várias entregas
+    @OneToMany(mappedBy = "funcionarioEntregador")
+    private List<Entrega> entregas;
 }

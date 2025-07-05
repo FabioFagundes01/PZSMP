@@ -1,16 +1,2 @@
 package br.com.sampaiollo.pzsmp.entity;
-import jakarta.persistence.*;
-import lombok.Data;
-@Entity
-@Table(name = "produto") 
-public enum StatusPedido {
-
-	PREPARANDO,
-
-	PRONTO,
-
-	ENTREGUE,
-
-	CANCELADO;
-
-}
+public enum StatusPedido { PREPARANDO, PRONTO, ENTREGUE, CANCELADO }

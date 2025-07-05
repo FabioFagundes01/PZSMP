@@ -1,22 +1,27 @@
 package br.com.sampaiollo.pzsmp.entity;
+
 import jakarta.persistence.*;
 import lombok.Data;
+
 @Entity
-@Table(name = "endereco") 
+@Table(name = "endereco")
 @Data
 public class Endereco {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id_endereco;
 
-	private char rua;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id_endereco;
 
-	private char bairro;
+    @Column(nullable = false)
+    private String rua;
 
-	private int numero;
+    private String bairro;
+    private Integer numero;
+    private String cidade;
+    private String cep;
 
-	private char cidade;
-
-	private char cep;
-
+    // Muitos Enderecos podem pertencer a um Cliente
+    @ManyToOne
+    @JoinColumn(name = "id_pessoa_cliente") // Conforme definido no seu script SQL [cite: 216]
+    private Cliente cliente;
 }

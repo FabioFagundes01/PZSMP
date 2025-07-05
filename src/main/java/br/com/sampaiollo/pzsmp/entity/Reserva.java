@@ -1,30 +1,38 @@
 package br.com.sampaiollo.pzsmp.entity;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "reserva") 
+@Table(name = "reserva")
 @Data
-
 public class Reserva {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id_reserva;
 
-	private LocalDateTime dataReserva;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id_reserva;
 
-	private int num_pessoas;
+    @Column(nullable = false)
+    private LocalDateTime dataReserva;
 
-	private StatusReserva status;
+    @Column(name = "num_pessoas", nullable = false)
+    private Integer numPessoas;
 
-	private char observacoes;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusReserva status;// Enum: PENDENTE, CONFIRMADA, etc. [cite: 211]
 
-	public void confirmarRes() {
+    @Column(length = 200)
+    private String observacoes;
 
-	}
+    // Muitas reservas podem ser de um cliente
+    @ManyToOne
+    @JoinColumn(name = "id_pessoa_cliente", nullable = false) // FK para Cliente [cite: 211]
+    private Cliente cliente;
 
-	public void cancelarRes() {
-
-	}
-
+    // Muitas reservas podem ser para uma mesa
+    @ManyToOne
+    @JoinColumn(name = "id_mesa", nullable = false) // FK para Mesa [cite: 211]
+    private Mesa mesa;
 }

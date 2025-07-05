@@ -1,35 +1,29 @@
 package br.com.sampaiollo.pzsmp.entity;
+
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import java.util.List;
 
 @Entity
-@Table(name = "cliente") 
+@Table(name = "cliente")
 @Data
+@EqualsAndHashCode(callSuper = true)
+@PrimaryKeyJoinColumn(name = "id_pessoa") // Vincula à PK na tabela Pessoa
+public class Cliente extends Pessoa {
 
-public class Cliente {
+    @Column(unique = true)
+    private String email;
 
-	private char email;
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id_pessoa;
+    // Um Cliente pode ter muitos Pedidos
+    @OneToMany(mappedBy = "cliente")
+    private List<Pedido> pedidos;
 
-	private Pessoa pessoa;
+    // Um Cliente pode ter muitos Enderecos
+    @OneToMany(mappedBy = "cliente")
+    private List<Endereco> enderecos;
 
-	public Pedido fazerPedido() {
-		return null;
-	}
-
-	public Reserva fazerReserva() {
-		return null;
-	}
-
-	public List<Pedido> consultarHistorico() {
-		return null;
-	}
-
-	public void AddEndereco(Endereco endereco) {
-
-	}
-
+    // Um Cliente pode ter muitas Reservas
+    @OneToMany(mappedBy = "cliente")
+    private List<Reserva> reservas;
 }

@@ -1,25 +1,70 @@
 package br.com.sampaiollo.pzsmp.entity;
+
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
+
 @Entity
-@Table(name = "usuario") 
+@Table(name = "usuario")
 @Data
-public class Usuario {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private int id_usuario;
-	private char login;
+public class Usuario implements UserDetails { // Implementa UserDetails
 
-	private char senha;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id_usuario;
 
-	private TipoUsuario tipo;
+    @Column(length = 100, unique = true, nullable = false)
+    private String login;
 
-	public boolean autenticar(char senha) {
-		return false;
-	}
+    @Column(length = 255, nullable = false)
+    private String senha;
 
-	public void alterarSenha(char senhaAnt, char senhaNova) {
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoUsuario tipo;
 
-	}
+    // MÉTODOS DA INTERFACE UserDetails
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (this.tipo == TipoUsuario.ADMIN) {
+            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
+        } else {
+            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+    }
 
+    @Override
+    public String getPassword() {
+        return this.senha;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.login;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // Ou adicione sua lógica
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // Ou adicione sua lógica
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // Ou adicione sua lógica
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true; // Ou adicione sua lógica
+    }
 }

@@ -1,11 +1,12 @@
 package br.com.sampaiollo.pzsmp.entity;
 
 import jakarta.persistence.*;
-import lombok.Data; // Do Lombok, para getters/setters automáticos
+import lombok.Data; // A "mágica" acontece por causa desta linha
+import java.math.BigDecimal;
 
 @Entity
-@Table(name = "produto") 
-@Data 
+@Table(name = "produto")
+@Data // Esta anotação cria os getters, setters e outros métodos para você
 public class Produto {
 
     @Id
@@ -15,10 +16,10 @@ public class Produto {
     @Column(nullable = false)
     private String nome;
 
-    // Ainda não criamos o ENUM no Java, por enquanto podemos usar String
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String tipo;
+    private TipoProduto tipo;
 
-    @Column(nullable = false)
-    private Double preco;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal preco;
 }
