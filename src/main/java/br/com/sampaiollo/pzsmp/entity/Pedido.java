@@ -2,6 +2,7 @@ package br.com.sampaiollo.pzsmp.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,7 +14,7 @@ public class Pedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_pedido;
+    private Integer id;
 
     @Column(columnDefinition = "NUMERIC(10,2)")
     private BigDecimal total;
@@ -24,22 +25,22 @@ public class Pedido {
 
     @Column(name = "data", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime data;
+    
+    @Column(nullable = false)
+    private boolean pago = false; // CAMPO ATUALIZADO/ADICIONADO
 
-    // Muitos Pedidos podem ser feitos por um Cliente
     @ManyToOne
-    @JoinColumn(name = "id_pessoa") // Esta é a coluna da chave estrangeira na tabela Pedido
+    @JoinColumn(name = "id_pessoa")
     private Cliente cliente;
 
-    // Um Pedido tem muitos ItemPedidos
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
     private List<ItemPedido> itens;
     
-    // Um Pedido pode ser associado a uma Mesa (opcional)
     @ManyToOne
     @JoinColumn(name = "id_mesa")
     private Mesa mesa;
     
     @ManyToOne
-    @JoinColumn(name = "id_balcao") // FK para Balcao
+    @JoinColumn(name = "id_balcao")
     private Balcao balcao;
 }

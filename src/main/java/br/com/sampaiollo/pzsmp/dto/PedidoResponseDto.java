@@ -19,7 +19,7 @@ public record PedidoResponseDto(
     // Construtor que converte a entidade Pedido complexa neste DTO simples e seguro
     public PedidoResponseDto(Pedido pedido) {
         this(
-                pedido.getId_pedido(),
+                pedido.getId(),
                 pedido.getData(),
                 pedido.getStatus(),
                 pedido.getTotal(),
