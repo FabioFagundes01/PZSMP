@@ -29,9 +29,15 @@ public class SecurityConfig {
                         // Endpoints públicos
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/clientes").permitAll()
+
+                        // <<< LINHA ADICIONADA AQUI >>>
+                        // Permite que qualquer pessoa (mesmo sem login) acesse as imagens dos produtos.
+                        .requestMatchers(HttpMethod.GET, "/product-images/**").permitAll()
+                        
                         // Permissões específicas
                         .requestMatchers(HttpMethod.POST, "/api/funcionarios").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/funcionarios").hasRole("ADMIN")
+                        
                         // Qualquer outra requisição precisa de autenticação
                         .anyRequest().authenticated() 
                 )
@@ -44,4 +50,5 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
+    
 }

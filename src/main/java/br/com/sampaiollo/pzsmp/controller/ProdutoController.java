@@ -1,11 +1,14 @@
 package br.com.sampaiollo.pzsmp.controller;
 
+import org.springframework.http.HttpStatus;
+import br.com.sampaiollo.pzsmp.dto.ProdutoRequest;
 import br.com.sampaiollo.pzsmp.entity.Produto;
 import br.com.sampaiollo.pzsmp.service.ProdutoService;
+import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
@@ -32,4 +35,17 @@ public class ProdutoController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    @PostMapping
+public ResponseEntity<Produto> cadastrarProduto(
+        @RequestParam("nome") String nome,
+        @RequestParam("preco") BigDecimal preco,
+        @RequestParam("tipo") String tipo,
+        @RequestParam(value = "imagem", required = false) MultipartFile imagem) {
+
+    // Cria o DTO a partir dos parâmetros recebidos
+    ProdutoRequest request = new ProdutoRequest(nome, tipo, preco);
+
+    Produto produtoSalvo = produtoService.cadastrarProduto(request, imagem);
+    return ResponseEntity.status(HttpStatus.CREATED).body(produtoSalvo);
+}
 }

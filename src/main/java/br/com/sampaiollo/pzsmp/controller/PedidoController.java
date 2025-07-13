@@ -2,6 +2,7 @@ package br.com.sampaiollo.pzsmp.controller;
 
 import br.com.sampaiollo.pzsmp.dto.PedidoRequestDto;
 import br.com.sampaiollo.pzsmp.dto.PedidoResponseDto;
+import br.com.sampaiollo.pzsmp.dto.UpdateStatusRequest;
 import br.com.sampaiollo.pzsmp.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,15 @@ public class PedidoController {
 
     @Autowired
     private PedidoService pedidoService;
+    
+    @PutMapping("/{id}/status")
+public ResponseEntity<PedidoResponseDto> atualizarStatus(
+        @PathVariable Integer id,
+        @RequestBody UpdateStatusRequest request) {
+
+    PedidoResponseDto pedidoAtualizado = pedidoService.atualizarStatus(id, request.novoStatus());
+    return ResponseEntity.ok(pedidoAtualizado);
+}
 
     /**
      * Endpoint para realizar um novo pedido.

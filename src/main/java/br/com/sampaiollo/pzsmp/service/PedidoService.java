@@ -82,6 +82,25 @@ public class PedidoService {
         // Converte a entidade salva para o DTO de resposta e a retorna
         return new PedidoResponseDto(pedidoSalvo);
     }
+    
+    @Transactional
+public PedidoResponseDto atualizarStatus(Integer pedidoId, String novoStatus) {
+    // 1. Encontra o pedido no banco de dados
+    Pedido pedido = pedidoRepository.findById(pedidoId)
+            .orElseThrow(() -> new RuntimeException("Pedido não encontrado com ID: " + pedidoId));
+
+    // 2. Converte a String do novo status para o tipo Enum
+    StatusPedido statusEnum = StatusPedido.valueOf(novoStatus.toUpperCase());
+
+    // 3. Atualiza o status do pedido
+    pedido.setStatus(statusEnum);
+
+    // 4. Salva o pedido atualizado no banco
+    Pedido pedidoSalvo = pedidoRepository.save(pedido);
+
+    // 5. Retorna o DTO do pedido atualizado
+    return new PedidoResponseDto(pedidoSalvo);
+}
 
     public Optional<PedidoResponseDto> buscarPorId(Integer id) {
         return pedidoRepository.findById(id)
