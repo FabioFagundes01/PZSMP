@@ -22,41 +22,46 @@ public class ReservaService {
     private ReservaRepository reservaRepository;
 
     @Autowired
-    private ClienteRepository clienteRepository;
+    private ClienteRepository clienteRepository; // Mantido para futuras funcionalidades
 
     @Autowired
     private MesaRepository mesaRepository;
 
     @Transactional
     public Reserva fazerReserva(ReservaRequestDto dto) {
-        Cliente cliente = clienteRepository.findById(dto.getIdCliente())
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado com ID: " + dto.getIdCliente()));
-        
-        Mesa mesa = mesaRepository.findById(dto.getIdMesa())
-                .orElseThrow(() -> new RuntimeException("Mesa não encontrada com número: " + dto.getIdMesa()));
+        // 1. Busca a mesa ou lança um erro
+        Mesa mesa = mesaRepository.findById(dto.idMesa())
+                .orElseThrow(() -> new RuntimeException("Mesa não encontrada com número: " + dto.idMesa()));
 
-        LocalDateTime horarioDesejado = dto.getDataReserva();
+        // 2. Verifica se a mesa já não está ocupada ou reservada
+        if (mesa.getStatus() != StatusMesa.LIVRE) {
+            throw new RuntimeException("A mesa " + mesa.getNumero() + " não está livre para reserva.");
+        }
+
+        // 3. (Lógica de verificação de conflito de horário continua a mesma)
+        LocalDateTime horarioDesejado = dto.dataReserva();
         LocalDateTime inicioIntervalo = horarioDesejado.minus(DURACAO_RESERVA).plusMinutes(1);
         LocalDateTime fimIntervalo = horarioDesejado.plus(DURACAO_RESERVA).minusMinutes(1);
-        
         List<StatusReserva> statusAtivos = List.of(StatusReserva.PENDENTE, StatusReserva.CONFIRMADA);
-        
         List<Reserva> conflitos = reservaRepository.findConflicts(mesa, inicioIntervalo, fimIntervalo, statusAtivos);
 
         if (!conflitos.isEmpty()) {
-            throw new RuntimeException("A mesa " + mesa.getNumero() + " já está reservada ou bloqueada para este horário.");
+            throw new RuntimeException("A mesa " + mesa.getNumero() + " já possui uma reserva conflitante para este horário.");
         }
 
+        // 4. Atualiza o status da mesa para RESERVADA
         mesa.setStatus(StatusMesa.RESERVADA);
         mesaRepository.save(mesa);
 
+        // 5. Cria a nova entidade Reserva com os dados simplificados
         Reserva reserva = new Reserva();
-        reserva.setCliente(cliente);
         reserva.setMesa(mesa);
-        reserva.setDataReserva(dto.getDataReserva());
-        reserva.setNumPessoas(dto.getNumPessoas());
-        reserva.setObservacoes(dto.getObservacoes());
+        reserva.setNomeReserva(dto.nomeReserva()); // Usa o nome temporário
+        reserva.setNumPessoas(dto.numPessoas());
+        reserva.setDataReserva(dto.dataReserva());
+        reserva.setObservacoes(dto.observacoes());
         reserva.setStatus(StatusReserva.CONFIRMADA);
+        // O campo 'cliente' não é definido, permanecendo nulo
 
         return reservaRepository.save(reserva);
     }
@@ -64,7 +69,7 @@ public class ReservaService {
     @Transactional
     public Reserva cancelarReserva(Integer reservaId) {
         Reserva reserva = reservaRepository.findById(reservaId)
-            .orElseThrow(() -> new RuntimeException("Reserva não encontrada com ID: " + reservaId));
+                .orElseThrow(() -> new RuntimeException("Reserva não encontrada com ID: " + reservaId));
         
         reserva.setStatus(StatusReserva.CANCELADA_CLIENTE);
         

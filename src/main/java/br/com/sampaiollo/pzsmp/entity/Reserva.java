@@ -1,8 +1,10 @@
 package br.com.sampaiollo.pzsmp.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
+
 
 @Entity
 @Table(name = "reserva")
@@ -11,28 +13,31 @@ public class Reserva {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_reserva;
+    private Integer id;
 
     @Column(nullable = false)
     private LocalDateTime dataReserva;
 
-    @Column(name = "num_pessoas", nullable = false)
+    @Column(nullable = false)
     private Integer numPessoas;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StatusReserva status;// Enum: PENDENTE, CONFIRMADA, etc. [cite: 211]
-
-    @Column(length = 200)
+    private StatusReserva status;
+    
     private String observacoes;
 
-    // Muitas reservas podem ser de um cliente
+    // NOVO CAMPO: para armazenar o nome temporário da reserva
+    private String nomeReserva;
+
     @ManyToOne
-    @JoinColumn(name = "id_pessoa_cliente", nullable = false) // FK para Cliente [cite: 211]
+    // A coluna 'id_pessoa' agora pode ser nula, tornando a associação com Cliente opcional.
+    @JoinColumn(name = "id_pessoa", nullable = true) 
+    @JsonBackReference
     private Cliente cliente;
 
-    // Muitas reservas podem ser para uma mesa
     @ManyToOne
-    @JoinColumn(name = "id_mesa", nullable = false) // FK para Mesa [cite: 211]
+    @JoinColumn(name = "id_mesa", nullable = false)
+    @JsonBackReference
     private Mesa mesa;
 }

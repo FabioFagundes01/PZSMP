@@ -1,8 +1,9 @@
 package br.com.sampaiollo.pzsmp.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
-
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,10 +31,12 @@ public class Pedido {
     private boolean pago = false; // CAMPO ATUALIZADO/ADICIONADO
 
     @ManyToOne
-    @JoinColumn(name = "id_pessoa")
+    @JoinColumn(name = "id_pessoa", nullable = true)
+    @JsonBackReference
     private Cliente cliente;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<ItemPedido> itens;
     
     @ManyToOne

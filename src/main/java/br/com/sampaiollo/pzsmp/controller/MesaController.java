@@ -5,7 +5,7 @@ import br.com.sampaiollo.pzsmp.service.MesaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import br.com.sampaiollo.pzsmp.dto.MesaStatusResponse;
 import java.util.List;
 
 @RestController
@@ -19,10 +19,10 @@ public class MesaController {
     // Endpoint para listar todas as mesas
     // HTTP GET -> http://localhost:8080/api/mesas
     @GetMapping
-    public ResponseEntity<List<Mesa>> listarTodasMesas() {
-        List<Mesa> mesas = mesaService.listarTodas();
-        return ResponseEntity.ok(mesas);
-    }
+public ResponseEntity<List<MesaStatusResponse>> listarTodasMesas() {
+    List<MesaStatusResponse> mesas = mesaService.listarTodasComStatus();
+    return ResponseEntity.ok(mesas);
+}
 
     // Endpoint para buscar uma mesa específica pelo seu número
     // HTTP GET -> http://localhost:8080/api/mesas/5

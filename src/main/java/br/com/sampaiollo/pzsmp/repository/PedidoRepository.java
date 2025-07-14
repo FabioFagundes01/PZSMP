@@ -20,4 +20,5 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
     
     // MÉTODO NOVO/ATUALIZADO
     Integer countByMesaAndPagoIsFalseAndStatusNot(Mesa mesa, StatusPedido status);
+    List<Pedido> findByMesaNumeroAndStatusNot(Integer numeroMesa, StatusPedido status);
 }

@@ -1,5 +1,6 @@
 package br.com.sampaiollo.pzsmp.controller;
 
+import br.com.sampaiollo.pzsmp.dto.AdicionarItensRequest;
 import br.com.sampaiollo.pzsmp.dto.PedidoRequestDto;
 import br.com.sampaiollo.pzsmp.dto.PedidoResponseDto;
 import br.com.sampaiollo.pzsmp.dto.UpdateStatusRequest;
@@ -57,4 +58,19 @@ public ResponseEntity<PedidoResponseDto> atualizarStatus(
                 .map(pedidoDto -> ResponseEntity.ok(pedidoDto))
                 .orElse(ResponseEntity.notFound().build());
     }
+    
+    @GetMapping("/mesa/{numero}")
+    public ResponseEntity<List<PedidoResponseDto>> buscarPedidosPorMesa(@PathVariable Integer numero) {
+        List<PedidoResponseDto> pedidos = pedidoService.buscarPorMesa(numero);
+        return ResponseEntity.ok(pedidos);
+    }
+    
+    @PostMapping("/{id}/itens")
+public ResponseEntity<PedidoResponseDto> adicionarItens(
+        @PathVariable Integer id,
+        @RequestBody AdicionarItensRequest request) {
+            
+    PedidoResponseDto pedidoAtualizado = pedidoService.adicionarItens(id, request);
+    return ResponseEntity.ok(pedidoAtualizado);
+}
 }

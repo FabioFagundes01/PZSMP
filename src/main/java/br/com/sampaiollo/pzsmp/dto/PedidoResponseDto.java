@@ -13,19 +13,19 @@ public record PedidoResponseDto(
         LocalDateTime data,
         StatusPedido status,
         BigDecimal total,
-        ClienteResponseDto cliente,
+        ClienteResponseDto cliente, // Este campo pode ser nulo agora
         List<ItemPedidoResponseDto> itens
 ) {
-    // Construtor que converte a entidade Pedido complexa neste DTO simples e seguro
     public PedidoResponseDto(Pedido pedido) {
         this(
                 pedido.getId(),
                 pedido.getData(),
                 pedido.getStatus(),
                 pedido.getTotal(),
-                new ClienteResponseDto(pedido.getCliente()), // Converte o cliente aninhado
+                // Se o cliente do pedido não for nulo, cria o DTO dele. Senão, o campo fica nulo.
+                pedido.getCliente() != null ? new ClienteResponseDto(pedido.getCliente()) : null,
                 pedido.getItens().stream()
-                        .map(ItemPedidoResponseDto::new) // Converte cada item do pedido
+                        .map(ItemPedidoResponseDto::new)
                         .collect(Collectors.toList())
         );
     }

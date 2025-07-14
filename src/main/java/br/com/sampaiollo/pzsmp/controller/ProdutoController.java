@@ -48,4 +48,25 @@ public ResponseEntity<Produto> cadastrarProduto(
     Produto produtoSalvo = produtoService.cadastrarProduto(request, imagem);
     return ResponseEntity.status(HttpStatus.CREATED).body(produtoSalvo);
 }
+
+
+@PutMapping("/{id}")
+public ResponseEntity<Produto> atualizarProduto(
+        @PathVariable Integer id,
+        @RequestParam("nome") String nome,
+        @RequestParam("preco") BigDecimal preco,
+        @RequestParam("tipo") String tipo,
+        @RequestParam(value = "imagem", required = false) MultipartFile imagem) {
+
+    ProdutoRequest request = new ProdutoRequest(nome, tipo, preco);
+    Produto produtoAtualizado = produtoService.atualizarProduto(id, request, imagem);
+    
+    return ResponseEntity.ok(produtoAtualizado);
+}
+
+@DeleteMapping("/{id}")
+public ResponseEntity<Void> excluirProduto(@PathVariable Integer id) {
+    produtoService.excluirProduto(id);
+    return ResponseEntity.noContent().build(); // Retorna 204 No Content, indicando sucesso
+}
 }

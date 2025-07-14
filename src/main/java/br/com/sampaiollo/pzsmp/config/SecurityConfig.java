@@ -29,19 +29,20 @@ public class SecurityConfig {
                         // Endpoints públicos
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/clientes").permitAll()
-
-                        // <<< LINHA ADICIONADA AQUI >>>
-                        // Permite que qualquer pessoa (mesmo sem login) acesse as imagens dos produtos.
                         .requestMatchers(HttpMethod.GET, "/product-images/**").permitAll()
                         
-                        // Permissões específicas
+                        // Permissões específicas de ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/funcionarios").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/funcionarios").hasRole("ADMIN")
+                        
+                        // <<< LINHAS ADICIONADAS AQUI >>>
+                        // Apenas ADMIN pode editar ou excluir produtos
+                        .requestMatchers(HttpMethod.PUT, "/api/produtos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/produtos/**").hasRole("ADMIN")
                         
                         // Qualquer outra requisição precisa de autenticação
                         .anyRequest().authenticated() 
                 )
-                // Adiciona nosso filtro para ser executado antes do filtro padrão do Spring
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

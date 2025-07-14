@@ -15,21 +15,25 @@ public class ReservaController {
     @Autowired
     private ReservaService reservaService;
 
-    // Endpoint para criar uma nova reserva
-    // HTTP POST -> http://localhost:8080/api/reservas
+    /**
+     * Endpoint para criar uma nova reserva simplificada.
+     * Recebe um nome para a reserva em vez de um ID de cliente.
+     */
     @PostMapping
     public ResponseEntity<?> fazerReserva(@RequestBody ReservaRequestDto reservaDto) {
         try {
             Reserva novaReserva = reservaService.fazerReserva(reservaDto);
             return ResponseEntity.status(201).body(novaReserva);
         } catch (RuntimeException e) {
-            // Retorna o erro específico do serviço, como "Cliente não encontrado"
+            // Retorna a mensagem de erro específica do serviço (ex: "Mesa já reservada")
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    // Endpoint para cancelar uma reserva
-    // HTTP PUT -> http://localhost:8080/api/reservas/1/cancelar
+    /**
+     * Endpoint para cancelar uma reserva.
+     * (Este método não precisa de alterações)
+     */
     @PutMapping("/{id}/cancelar")
     public ResponseEntity<?> cancelarReserva(@PathVariable Integer id) {
         try {

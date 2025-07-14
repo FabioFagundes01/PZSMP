@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+
 @Service
 public class ProdutoService {
 
@@ -68,5 +69,44 @@ private String salvarImagem(MultipartFile imagem) {
     } catch (IOException e) {
         throw new RuntimeException("Não foi possível salvar a imagem do produto.", e);
     }
+}
+ @Transactional
+public Produto atualizarProduto(Integer id, ProdutoRequest request, MultipartFile imagem) {
+    Produto produtoExistente = produtoRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + id));
+
+    // Se uma nova imagem foi enviada...
+    if (imagem != null && !imagem.isEmpty()) {
+        // (Opcional, mas recomendado) Apaga a imagem antiga se ela existir
+        if (produtoExistente.getImagemUrl() != null && !produtoExistente.getImagemUrl().isEmpty()) {
+            try {
+                Path caminhoImagemAntiga = Paths.get("product-images").resolve(produtoExistente.getImagemUrl());
+                Files.deleteIfExists(caminhoImagemAntiga);
+            } catch (IOException e) {
+                // Log do erro, mas não impede a atualização
+                System.err.println("Erro ao deletar imagem antiga: " + e.getMessage());
+            }
+        }
+        
+        // Salva a nova imagem e atualiza a URL
+        String nomeNovoArquivo = salvarImagem(imagem); // Reutiliza o método que já temos
+        produtoExistente.setImagemUrl(nomeNovoArquivo);
+    }
+
+    // Atualiza os outros campos
+    produtoExistente.setNome(request.nome());
+    produtoExistente.setPreco(request.preco());
+    produtoExistente.setTipo(TipoProduto.valueOf(request.tipo().toUpperCase()));
+
+    return produtoRepository.save(produtoExistente);
+}
+
+@Transactional
+public void excluirProduto(Integer id) {
+    // Verifica se o produto existe antes de tentar excluir
+    if (!produtoRepository.existsById(id)) {
+        throw new RuntimeException("Produto não encontrado com ID: " + id);
+    }
+    produtoRepository.deleteById(id);
 }
 }
