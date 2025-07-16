@@ -32,15 +32,16 @@ public class Pedido {
 
     @ManyToOne
     @JoinColumn(name = "id_pessoa", nullable = true)
-    @JsonBackReference
+    @JsonBackReference("cliente-pedidos")
     private Cliente cliente;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonManagedReference("pedido-itens")
     private List<ItemPedido> itens;
     
     @ManyToOne
     @JoinColumn(name = "id_mesa")
+    @JsonBackReference("mesa-pedidos")
     private Mesa mesa;
     
     @ManyToOne

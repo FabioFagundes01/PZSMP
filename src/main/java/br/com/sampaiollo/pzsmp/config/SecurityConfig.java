@@ -31,14 +31,18 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/clientes").permitAll()
                         .requestMatchers(HttpMethod.GET, "/product-images/**").permitAll()
                         
+                        // <<< PERMISSÕES ADICIONADAS AQUI >>>
+                        // Qualquer utilizador autenticado pode ver a lista de pedidos e mesas.
+                        .requestMatchers(HttpMethod.GET, "/api/pedidos").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/mesas").authenticated()
+                        
                         // Permissões específicas de ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/funcionarios").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/funcionarios").hasRole("ADMIN")
-                        
-                        // <<< LINHAS ADICIONADAS AQUI >>>
-                        // Apenas ADMIN pode editar ou excluir produtos
                         .requestMatchers(HttpMethod.PUT, "/api/produtos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/produtos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/clientes/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/clientes/**").hasRole("ADMIN")
                         
                         // Qualquer outra requisição precisa de autenticação
                         .anyRequest().authenticated() 

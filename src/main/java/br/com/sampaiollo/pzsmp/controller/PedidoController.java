@@ -73,4 +73,10 @@ public ResponseEntity<PedidoResponseDto> adicionarItens(
     PedidoResponseDto pedidoAtualizado = pedidoService.adicionarItens(id, request);
     return ResponseEntity.ok(pedidoAtualizado);
 }
+
+@PutMapping("/{id}/fechar")
+public ResponseEntity<PedidoResponseDto> fecharPedidoMesa(@PathVariable Integer id) {
+    PedidoResponseDto pedidoFechado = pedidoService.fecharPedidoMesa(id);
+    return ResponseEntity.ok(pedidoFechado);
+}
 }

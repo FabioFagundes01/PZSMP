@@ -8,6 +8,7 @@ import br.com.sampaiollo.pzsmp.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import br.com.sampaiollo.pzsmp.dto.ClienteDetalheDto;
 
 import java.util.List;
 
@@ -30,9 +31,9 @@ public class ClienteController {
     // Endpoint para buscar todos os clientes
     // HTTP GET -> http://localhost:8080/api/clientes
     @GetMapping
-    public ResponseEntity<List<Cliente>> listarTodos() {
-        List<Cliente> clientes = clienteService.listarTodos();
-        return ResponseEntity.ok(clientes); // 200 OK
+    public ResponseEntity<List<ClienteDetalheDto>> listarTodos() {
+        List<ClienteDetalheDto> clientes = clienteService.listarTodos();
+        return ResponseEntity.ok(clientes);
     }
 
     // Endpoint para buscar um cliente por ID
@@ -51,4 +52,16 @@ public class ClienteController {
         Endereco novoEndereco = clienteService.adicionarEndereco(clienteId, enderecoDto);
         return ResponseEntity.status(201).body(novoEndereco);
     }
+    
+    @PutMapping("/{id}")
+public ResponseEntity<Cliente> atualizarCliente(@PathVariable Integer id, @RequestBody ClienteRequestDto clienteDto) {
+    Cliente clienteAtualizado = clienteService.atualizarCliente(id, clienteDto);
+    return ResponseEntity.ok(clienteAtualizado);
+}
+
+@DeleteMapping("/{id}")
+public ResponseEntity<Void> excluirCliente(@PathVariable Integer id) {
+    clienteService.excluirCliente(id);
+    return ResponseEntity.noContent().build(); // Retorna 204 No Content
+}
 }

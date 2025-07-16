@@ -23,7 +23,7 @@ public class ItemPedido {
     // Muitos ItemPedidos pertencem a um Pedido
     @ManyToOne
     @JoinColumn(name = "id_pedido", nullable = false)
-    @JsonBackReference
+    @JsonBackReference("pedido-itens")
     private Pedido pedido;
 
     // Muitos ItemPedidos podem se referir ao mesmo Produto

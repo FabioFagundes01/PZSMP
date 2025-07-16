@@ -13,7 +13,8 @@ public record PedidoResponseDto(
         LocalDateTime data,
         StatusPedido status,
         BigDecimal total,
-        ClienteResponseDto cliente, // Este campo pode ser nulo agora
+        ClienteResponseDto cliente,
+        Integer numeroMesa, // <<< CAMPO ADICIONADO AQUI
         List<ItemPedidoResponseDto> itens
 ) {
     public PedidoResponseDto(Pedido pedido) {
@@ -22,8 +23,9 @@ public record PedidoResponseDto(
                 pedido.getData(),
                 pedido.getStatus(),
                 pedido.getTotal(),
-                // Se o cliente do pedido não for nulo, cria o DTO dele. Senão, o campo fica nulo.
                 pedido.getCliente() != null ? new ClienteResponseDto(pedido.getCliente()) : null,
+                // Se a mesa do pedido não for nula, pega o número dela. Senão, o campo fica nulo.
+                pedido.getMesa() != null ? pedido.getMesa().getNumero() : null, // <<< LÓGICA ADICIONADA AQUI
                 pedido.getItens().stream()
                         .map(ItemPedidoResponseDto::new)
                         .collect(Collectors.toList())

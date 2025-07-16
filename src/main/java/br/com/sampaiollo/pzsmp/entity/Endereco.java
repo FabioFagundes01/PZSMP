@@ -1,5 +1,6 @@
 package br.com.sampaiollo.pzsmp.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference; // <-- Importe esta classe
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -20,8 +21,8 @@ public class Endereco {
     private String cidade;
     private String cep;
 
-    // Muitos Enderecos podem pertencer a um Cliente
     @ManyToOne
-    @JoinColumn(name = "id_pessoa_cliente") // Conforme definido no seu script SQL [cite: 216]
+    @JoinColumn(name = "id_pessoa_cliente")
+    @JsonBackReference // <-- ADICIONE ESTA ANOTAÇÃO
     private Cliente cliente;
 }

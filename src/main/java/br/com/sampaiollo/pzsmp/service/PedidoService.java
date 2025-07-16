@@ -157,4 +157,39 @@ public PedidoResponseDto adicionarItens(Integer pedidoId, AdicionarItensRequest 
     // 4. Retorna o DTO do pedido completo e atualizado
     return new PedidoResponseDto(pedidoSalvo);
 }
+
+// Dentro da classe PedidoService.java
+
+@Transactional
+public PedidoResponseDto fecharPedidoMesa(Integer pedidoId) {
+    // 1. Busca o pedido existente
+    Pedido pedido = pedidoRepository.findById(pedidoId)
+            .orElseThrow(() -> new RuntimeException("Pedido não encontrado com ID: " + pedidoId));
+
+    // 2. Altera o status do pedido para ENTREGUE (ou um novo status como FECHADO, se preferir)
+    pedido.setStatus(StatusPedido.ENTREGUE);
+    
+    // 3. Pega a mesa associada a este pedido
+    Mesa mesa = pedido.getMesa();
+
+    // 4. Se o pedido estava associado a uma mesa, verifica se a mesa pode ser liberada
+    if (mesa != null) {
+        // Conta quantos outros pedidos ATIVOS (não cancelados ou entregues) ainda existem para esta mesa
+        long pedidosAtivosNaMesa = pedidoRepository.findAll().stream()
+                .filter(p -> mesa.equals(p.getMesa()) && 
+                             p.getStatus() != StatusPedido.ENTREGUE &&
+                             p.getStatus() != StatusPedido.CANCELADO)
+                .count();
+
+        // Se não houver mais nenhum pedido ativo, a mesa pode ser liberada
+        if (pedidosAtivosNaMesa == 0) {
+            mesa.setStatus(StatusMesa.LIVRE);
+            mesaRepository.save(mesa);
+        }
+    }
+
+    Pedido pedidoSalvo = pedidoRepository.save(pedido);
+    return new PedidoResponseDto(pedidoSalvo);
+}
+
 }
