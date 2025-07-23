@@ -43,6 +43,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/produtos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/clientes/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/clientes/**").hasRole("ADMIN")
+                        // Apenas ADMIN pode fechar o caixa (excluir todos os pedidos)
+                        .requestMatchers(HttpMethod.DELETE, "/api/pedidos/fechar-caixa").hasRole("ADMIN")
                         
                         // Qualquer outra requisição precisa de autenticação
                         .anyRequest().authenticated() 

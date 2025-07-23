@@ -79,4 +79,9 @@ public ResponseEntity<PedidoResponseDto> fecharPedidoMesa(@PathVariable Integer 
     PedidoResponseDto pedidoFechado = pedidoService.fecharPedidoMesa(id);
     return ResponseEntity.ok(pedidoFechado);
 }
+@DeleteMapping("/fechar-caixa")
+public ResponseEntity<Void> fecharCaixa() {
+    pedidoService.fecharCaixa();
+    return ResponseEntity.noContent().build(); // Retorna 204 No Content (sucesso sem corpo)
+}
 }

@@ -35,57 +35,51 @@ public class PedidoService {
     private MesaRepository mesaRepository;
 
     @Transactional
-    public PedidoResponseDto realizarPedido(PedidoRequestDto pedidoDto) {
-        // Inicia o cliente como nulo
-        Cliente cliente = null;
-        
-        // Se um ID de cliente foi fornecido, busca ele no banco
-        if (pedidoDto.getIdCliente() != null) {
-            cliente = clienteRepository.findById(pedidoDto.getIdCliente())
-                    .orElseThrow(() -> new RuntimeException("Cliente não encontrado com ID: " + pedidoDto.getIdCliente()));
-        }
-
-        // Cria o objeto Pedido principal
-        Pedido pedido = new Pedido();
-        pedido.setCliente(cliente); // Define o cliente (pode ser nulo)
-        pedido.setData(LocalDateTime.now());
-        pedido.setStatus(StatusPedido.PREPARANDO);
-
-        // Associa o pedido à mesa, se um ID de mesa foi fornecido
-        if (pedidoDto.getIdMesa() != null) {
-            Mesa mesa = mesaRepository.findById(pedidoDto.getIdMesa())
-                    .orElseThrow(() -> new RuntimeException("Mesa não encontrada com número: " + pedidoDto.getIdMesa()));
-            pedido.setMesa(mesa);
-            // Atualiza o status da mesa para OCUPADA
-            mesa.setStatus(StatusMesa.OCUPADA);
-            mesaRepository.save(mesa);
-        }
-
-        // (O resto da lógica para calcular o total e adicionar os itens continua a mesma)
-        BigDecimal totalPedido = BigDecimal.ZERO;
-        List<ItemPedido> itensDoPedido = new ArrayList<>();
-
-        for (var itemDto : pedidoDto.getItens()) {
-            Produto produto = produtoRepository.findById(itemDto.getIdProduto())
-                    .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + itemDto.getIdProduto()));
-
-            ItemPedido itemPedido = new ItemPedido();
-            itemPedido.setProduto(produto);
-            itemPedido.setQuantidade(itemDto.getQuantidade());
-            itemPedido.setPreco(produto.getPreco());
-            itemPedido.setPedido(pedido);
-
-            itensDoPedido.add(itemPedido);
-            totalPedido = totalPedido.add(produto.getPreco().multiply(BigDecimal.valueOf(itemDto.getQuantidade())));
-        }
-
-        pedido.setItens(itensDoPedido);
-        pedido.setTotal(totalPedido);
-
-        Pedido pedidoSalvo = pedidoRepository.save(pedido);
-
-        return new PedidoResponseDto(pedidoSalvo);
+public PedidoResponseDto realizarPedido(PedidoRequestDto pedidoDto) {
+    Cliente cliente = null;
+    if (pedidoDto.getIdCliente() != null) {
+        cliente = clienteRepository.findById(pedidoDto.getIdCliente())
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado com ID: " + pedidoDto.getIdCliente()));
     }
+
+    Pedido pedido = new Pedido();
+    pedido.setCliente(cliente);
+    pedido.setData(LocalDateTime.now());
+    pedido.setStatus(StatusPedido.PREPARANDO);
+    
+    // Define o nome temporário se ele foi enviado
+    pedido.setNomeClienteTemporario(pedidoDto.getNomeClienteTemporario());
+
+    if (pedidoDto.getIdMesa() != null) {
+        Mesa mesa = mesaRepository.findById(pedidoDto.getIdMesa())
+                .orElseThrow(() -> new RuntimeException("Mesa não encontrada com número: " + pedidoDto.getIdMesa()));
+        pedido.setMesa(mesa);
+        mesa.setStatus(StatusMesa.OCUPADA);
+        mesaRepository.save(mesa);
+    }
+
+    // (O resto da lógica para calcular o total e adicionar os itens continua a mesma)
+    // ...
+    
+    BigDecimal totalPedido = BigDecimal.ZERO;
+    List<ItemPedido> itensDoPedido = new ArrayList<>();
+    for (var itemDto : pedidoDto.getItens()) {
+        Produto produto = produtoRepository.findById(itemDto.getIdProduto())
+                .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + itemDto.getIdProduto()));
+        ItemPedido itemPedido = new ItemPedido();
+        itemPedido.setProduto(produto);
+        itemPedido.setQuantidade(itemDto.getQuantidade());
+        itemPedido.setPreco(produto.getPreco());
+        itemPedido.setPedido(pedido);
+        itensDoPedido.add(itemPedido);
+        totalPedido = totalPedido.add(produto.getPreco().multiply(BigDecimal.valueOf(itemDto.getQuantidade())));
+    }
+    pedido.setItens(itensDoPedido);
+    pedido.setTotal(totalPedido);
+
+    Pedido pedidoSalvo = pedidoRepository.save(pedido);
+    return new PedidoResponseDto(pedidoSalvo);
+}
 
     
     @Transactional
@@ -191,5 +185,22 @@ public PedidoResponseDto fecharPedidoMesa(Integer pedidoId) {
     Pedido pedidoSalvo = pedidoRepository.save(pedido);
     return new PedidoResponseDto(pedidoSalvo);
 }
+    @Transactional
+public void fecharCaixa() {
+    // 1. Apaga todos os registros da tabela de pedidos.
+    // Graças à configuração de cascata, os itens de pedido e pagamentos associados
+    // também serão removidos.
+    pedidoRepository.deleteAll();
 
+    // 2. Busca todas as mesas cadastradas no sistema.
+    List<Mesa> todasAsMesas = mesaRepository.findAll();
+
+    // 3. Itera sobre cada mesa e define seu status como LIVRE.
+    for (Mesa mesa : todasAsMesas) {
+        mesa.setStatus(StatusMesa.LIVRE);
+    }
+
+    // 4. Salva a lista de mesas atualizada de volta no banco de dados.
+    mesaRepository.saveAll(todasAsMesas);
+}
 }

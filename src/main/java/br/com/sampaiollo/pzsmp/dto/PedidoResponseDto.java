@@ -15,6 +15,7 @@ public record PedidoResponseDto(
         BigDecimal total,
         ClienteResponseDto cliente,
         Integer numeroMesa, // <<< CAMPO ADICIONADO AQUI
+        String nomeClienteTemporario,
         List<ItemPedidoResponseDto> itens
 ) {
     public PedidoResponseDto(Pedido pedido) {
@@ -24,8 +25,8 @@ public record PedidoResponseDto(
                 pedido.getStatus(),
                 pedido.getTotal(),
                 pedido.getCliente() != null ? new ClienteResponseDto(pedido.getCliente()) : null,
-                // Se a mesa do pedido não for nula, pega o número dela. Senão, o campo fica nulo.
-                pedido.getMesa() != null ? pedido.getMesa().getNumero() : null, // <<< LÓGICA ADICIONADA AQUI
+                pedido.getMesa() != null ? pedido.getMesa().getNumero() : null,
+                pedido.getNomeClienteTemporario(), // <-- CAMPO ADICIONADO
                 pedido.getItens().stream()
                         .map(ItemPedidoResponseDto::new)
                         .collect(Collectors.toList())

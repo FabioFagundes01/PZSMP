@@ -30,6 +30,7 @@ public class Pedido {
     @Column(nullable = false)
     private boolean pago = false; // CAMPO ATUALIZADO/ADICIONADO
 
+    private String nomeClienteTemporario;
     @ManyToOne
     @JoinColumn(name = "id_pessoa", nullable = true)
     @JsonBackReference("cliente-pedidos")
