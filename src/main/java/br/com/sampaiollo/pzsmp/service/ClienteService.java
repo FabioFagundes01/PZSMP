@@ -122,4 +122,14 @@ public void excluirCliente(Integer id) {
     // os registros em cliente, endereco, pedido, etc., serão removidos.
     pessoaRepository.deleteById(id); // Deleta a partir da tabela Pessoa
 }
+
+public List<ClienteDetalheDto> buscarClientes(String termo) {
+    // Procura no repositório por nome ou telefone
+    List<Cliente> clientesEncontrados = clienteRepository.findByNomeContainingIgnoreCaseOrTelefoneContainingIgnoreCase(termo, termo);
+    
+    // Converte a lista de entidades para a lista de DTOs
+    return clientesEncontrados.stream()
+            .map(ClienteDetalheDto::new)
+            .collect(Collectors.toList());
+}
 }

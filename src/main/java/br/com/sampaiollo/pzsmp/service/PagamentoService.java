@@ -26,7 +26,7 @@ public class PagamentoService {
         Pedido pedido = pedidoRepository.findById(dto.idPedido())
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado com ID: " + dto.idPedido()));
 
-        // 2. Cria e salva o registro do pagamento
+        // 2. Cria e salva o registo do pagamento
         Pagamento pagamento = new Pagamento();
         pagamento.setPedido(pedido);
         pagamento.setMetodo(dto.metodo());
@@ -35,15 +35,18 @@ public class PagamentoService {
         pagamento.setStatus(StatusPagamento.EFETUADO);
         pagamentoRepository.save(pagamento);
 
-        // 3. Marca o pedido como pago
+        // 3. Marca o pedido como pago e finalizado
         pedido.setPago(true);
+        pedido.setStatus(StatusPedido.ENTREGUE); // Consideramos o pedido finalizado
         pedidoRepository.save(pedido);
 
         // 4. VERIFICA SE A MESA PODE SER LIBERADA
         Mesa mesaDoPedido = pedido.getMesa();
         if (mesaDoPedido != null) {
             // Conta quantos outros pedidos para esta mesa ainda não foram pagos (e não estão cancelados)
-            Integer pedidosNaoPagos = pedidoRepository.countByMesaAndPagoIsFalseAndStatusNot(mesaDoPedido, StatusPedido.CANCELADO);
+            long pedidosNaoPagos = pedidoRepository.findAll().stream()
+                .filter(p -> mesaDoPedido.equals(p.getMesa()) && !p.isPago())
+                .count();
 
             // Se não há mais pedidos pendentes de pagamento, libera a mesa
             if (pedidosNaoPagos == 0) {

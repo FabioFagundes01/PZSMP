@@ -24,6 +24,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
 
     // Conta pedidos não pagos para uma mesa
     Integer countByMesaAndPagoIsFalseAndStatusNot(Mesa mesa, StatusPedido status);
+    List<Pedido> findByMesaNumeroAndStatusNotIn(Integer numeroMesa, List<StatusPedido> statuses);
 
     /**
      * Sobrescreve o método findAll() padrão para forçar o carregamento

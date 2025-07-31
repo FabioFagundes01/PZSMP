@@ -1,5 +1,6 @@
 package br.com.sampaiollo.pzsmp.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -30,5 +31,6 @@ public class Pagamento {
     // Muitos pagamentos podem estar associados a um pedido
     @ManyToOne
     @JoinColumn(name = "id_pedido", nullable = false) // FK para Pedido [cite: 199]
+    @JsonBackReference("pedido-pagamentos")
     private Pedido pedido;
 }

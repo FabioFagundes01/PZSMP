@@ -112,11 +112,14 @@ public PedidoResponseDto atualizarStatus(Integer pedidoId, String novoStatus) {
                 .collect(Collectors.toList());
     }
     public List<PedidoResponseDto> buscarPorMesa(Integer numeroMesa) {
-    // Busca no repositório todos os pedidos da mesa que não estejam com status CANCELADO
-    List<Pedido> pedidos = pedidoRepository.findByMesaNumeroAndStatusNot(numeroMesa, StatusPedido.CANCELADO);
+    // Define os status que consideramos como "não ativos"
+    List<StatusPedido> statusesExcluidos = List.of(StatusPedido.ENTREGUE, StatusPedido.CANCELADO);
+    
+    // Busca no repositório todos os pedidos da mesa que NÃO estejam com os status da lista acima
+    List<Pedido> pedidosAtivos = pedidoRepository.findByMesaNumeroAndStatusNotIn(numeroMesa, statusesExcluidos);
     
     // Converte a lista de entidades para uma lista de DTOs e a retorna
-    return pedidos.stream()
+    return pedidosAtivos.stream()
             .map(PedidoResponseDto::new)
             .collect(Collectors.toList());
 }

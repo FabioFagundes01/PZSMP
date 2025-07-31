@@ -48,4 +48,9 @@ public class Pedido {
     @ManyToOne
     @JoinColumn(name = "id_balcao")
     private Balcao balcao;
+    
+    // <<< LISTA DE PAGAMENTOS ADICIONADA AQUI >>>
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+    @JsonManagedReference("pedido-pagamentos")
+    private List<Pagamento> pagamentos;
 }
