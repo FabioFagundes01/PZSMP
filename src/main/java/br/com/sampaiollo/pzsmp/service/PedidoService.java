@@ -8,16 +8,19 @@ import br.com.sampaiollo.pzsmp.repository.ClienteRepository;
 import br.com.sampaiollo.pzsmp.repository.MesaRepository;
 import br.com.sampaiollo.pzsmp.repository.PedidoRepository;
 import br.com.sampaiollo.pzsmp.repository.ProdutoRepository;
+import br.com.sampaiollo.pzsmp.repository.RelatorioDiarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.stream.Collectors;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Sort;
 
 @Service
 public class PedidoService {
@@ -33,6 +36,9 @@ public class PedidoService {
     
     @Autowired
     private MesaRepository mesaRepository;
+    
+    @Autowired
+private RelatorioDiarioRepository relatorioDiarioRepository;
 
     @Transactional
 public PedidoResponseDto realizarPedido(PedidoRequestDto pedidoDto) {
@@ -190,20 +196,33 @@ public PedidoResponseDto fecharPedidoMesa(Integer pedidoId) {
 }
     @Transactional
 public void fecharCaixa() {
-    // 1. Apaga todos os registros da tabela de pedidos.
-    // Graças à configuração de cascata, os itens de pedido e pagamentos associados
-    // também serão removidos.
+    // 1. Busca todos os pedidos que foram pagos
+    List<Pedido> pedidosPagos = pedidoRepository.findAll().stream()
+            .filter(Pedido::isPago)
+            .toList();
+
+    // 2. Calcula o valor total arrecadado no dia
+    BigDecimal totalDoDia = pedidosPagos.stream()
+            .map(Pedido::getTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    // 3. Cria e salva o novo relatório diário
+    RelatorioDiario relatorio = new RelatorioDiario();
+    relatorio.setData(LocalDate.now()); // Pega a data atual
+    relatorio.setValorTotal(totalDoDia);
+    relatorioDiarioRepository.save(relatorio);
+
+    // 4. Apaga todos os pedidos existentes (pagos e não pagos)
     pedidoRepository.deleteAll();
 
-    // 2. Busca todas as mesas cadastradas no sistema.
+    // 5. Reseta o status de todas as mesas para LIVRE
     List<Mesa> todasAsMesas = mesaRepository.findAll();
-
-    // 3. Itera sobre cada mesa e define seu status como LIVRE.
-    for (Mesa mesa : todasAsMesas) {
-        mesa.setStatus(StatusMesa.LIVRE);
-    }
-
-    // 4. Salva a lista de mesas atualizada de volta no banco de dados.
+    todasAsMesas.forEach(mesa -> mesa.setStatus(StatusMesa.LIVRE));
     mesaRepository.saveAll(todasAsMesas);
+}
+
+public List<RelatorioDiario> listarRelatorios() {
+    // Retorna os relatórios ordenados pela data mais recente primeiro
+    return relatorioDiarioRepository.findAll(Sort.by(Sort.Direction.DESC, "data"));
 }
 }

@@ -4,6 +4,7 @@ import br.com.sampaiollo.pzsmp.dto.AdicionarItensRequest;
 import br.com.sampaiollo.pzsmp.dto.PedidoRequestDto;
 import br.com.sampaiollo.pzsmp.dto.PedidoResponseDto;
 import br.com.sampaiollo.pzsmp.dto.UpdateStatusRequest;
+import br.com.sampaiollo.pzsmp.entity.RelatorioDiario;
 import br.com.sampaiollo.pzsmp.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -83,5 +84,10 @@ public ResponseEntity<PedidoResponseDto> fecharPedidoMesa(@PathVariable Integer 
 public ResponseEntity<Void> fecharCaixa() {
     pedidoService.fecharCaixa();
     return ResponseEntity.noContent().build(); // Retorna 204 No Content (sucesso sem corpo)
+}
+
+@GetMapping("/relatorios")
+public ResponseEntity<List<RelatorioDiario>> listarRelatorios() {
+    return ResponseEntity.ok(pedidoService.listarRelatorios());
 }
 }

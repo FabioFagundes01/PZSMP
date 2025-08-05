@@ -34,6 +34,11 @@
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
+                <dependency>
+                            <groupId>com.mercadopago</groupId>
+                            <artifactId>sdk-java</artifactId>
+                                <version>2.1.13</version> <!-- Verifique a versão mais recente se desejar -->
+                </dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
